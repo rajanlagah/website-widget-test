@@ -21,3 +21,20 @@ export function injectSnippet(snippet) {
   });
   return scripts.length;
 }
+
+// History of previously saved snippets (most recent first, deduped, capped).
+const HISTORY_KEY = 'widget-test:history';
+const HISTORY_MAX = 10;
+
+export function getHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; }
+}
+export function addToHistory(snippet) {
+  const s = snippet.trim();
+  const next = [{ snippet: s, savedAt: Date.now() }, ...getHistory().filter((h) => h.snippet !== s)];
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(next.slice(0, HISTORY_MAX)));
+}
+export function removeFromHistory(snippet) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(getHistory().filter((h) => h.snippet !== snippet)));
+}
+export const clearHistory = () => localStorage.removeItem(HISTORY_KEY);
