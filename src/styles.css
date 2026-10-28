@@ -86,3 +86,6 @@ select { color: inherit; padding: 12px; border: 1px solid var(--input-border); b
 .theme-toggle button { padding: 4px 10px; font-size: 13px; background: none; color: var(--muted); border-radius: 6px; }
 .theme-toggle button:hover { color: var(--strong); }
 .theme-toggle button.on { background: var(--surface); color: var(--strong); box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+
+/* Share */
+.nav-right .share { margin-left: 18px; padding: 5px 12px; font-size: 13px; min-width: 72px; }

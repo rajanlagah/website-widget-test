@@ -50,3 +50,30 @@ export function removeFromHistory(snippet) {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(getSavedHistory().filter((h) => h.snippet !== snippet)));
 }
 export const clearHistory = () => localStorage.removeItem(HISTORY_KEY);
+
+// Share links carry the snippet as base64url (UTF-8 safe) in ?widget=
+const SHARE_PARAM = 'widget';
+const toB64Url = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s)))
+  .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const fromB64Url = (s) => new TextDecoder().decode(
+  Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0))
+);
+
+export function shareUrl(snippet) {
+  const url = new URL(location.origin + location.pathname);
+  url.searchParams.set(SHARE_PARAM, toB64Url(snippet));
+  return url.toString();
+}
+
+// If opened via a share link, save that snippet (replacing the current one) and strip the param.
+export function consumeShareParam() {
+  const url = new URL(location.href);
+  const encoded = url.searchParams.get(SHARE_PARAM);
+  if (!encoded) return;
+  try {
+    const snippet = fromB64Url(encoded).trim();
+    if (snippet) { saveSnippet(snippet); addToHistory(snippet); }
+  } catch { /* malformed link; ignore */ }
+  url.searchParams.delete(SHARE_PARAM);
+  history.replaceState(history.state, '', url);
+}

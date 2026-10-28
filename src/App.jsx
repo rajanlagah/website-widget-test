@@ -4,6 +4,20 @@ import Home from './pages/Home';
 import Pricing from './pages/Pricing';
 import Contact from './pages/Contact';
 import { THEMES, applyTheme, getTheme } from './theme';
+import { getSnippet, shareUrl } from './widget';
+
+function ShareButton() {
+  const [msg, setMsg] = useState('');
+  const flash = (m) => { setMsg(m); setTimeout(() => setMsg(''), 1500); };
+  const onShare = async () => {
+    const snippet = getSnippet();
+    if (!snippet) return flash('No widget');
+    const url = shareUrl(snippet);
+    try { await navigator.clipboard.writeText(url); flash('Copied!'); }
+    catch { prompt('Copy share link:', url); } // clipboard API needs a secure context
+  };
+  return <button className="share" onClick={onShare}>{msg || 'Share'}</button>;
+}
 
 function ThemeToggle() {
   const [theme, setTheme] = useState(getTheme);
@@ -28,6 +42,7 @@ export default function App() {
           <NavLink to="/" end>Home</NavLink>
           <NavLink to="/pricing">Pricing</NavLink>
           <NavLink to="/contact">Contact</NavLink>
+          <ShareButton />
           <ThemeToggle />
         </div>
       </nav>
