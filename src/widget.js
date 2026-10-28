@@ -26,15 +26,27 @@ export function injectSnippet(snippet) {
 const HISTORY_KEY = 'widget-test:history';
 const HISTORY_MAX = 10;
 
-export function getHistory() {
+// Always listed in history (after saved entries); can't be removed.
+export const DEFAULT_SNIPPETS = [
+  '<script src="https://widget-cdn.doubletick.dev/loader.js" data-widget-id="wgt_8bcySFfixe7l" async></script>',
+];
+
+function getSavedHistory() {
   try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; }
+}
+export function getHistory() {
+  const saved = getSavedHistory();
+  const defaults = DEFAULT_SNIPPETS
+    .filter((d) => !saved.some((h) => h.snippet === d))
+    .map((snippet) => ({ snippet, isDefault: true }));
+  return [...saved, ...defaults];
 }
 export function addToHistory(snippet) {
   const s = snippet.trim();
-  const next = [{ snippet: s, savedAt: Date.now() }, ...getHistory().filter((h) => h.snippet !== s)];
+  const next = [{ snippet: s, savedAt: Date.now() }, ...getSavedHistory().filter((h) => h.snippet !== s)];
   localStorage.setItem(HISTORY_KEY, JSON.stringify(next.slice(0, HISTORY_MAX)));
 }
 export function removeFromHistory(snippet) {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(getHistory().filter((h) => h.snippet !== snippet)));
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(getSavedHistory().filter((h) => h.snippet !== snippet)));
 }
 export const clearHistory = () => localStorage.removeItem(HISTORY_KEY);

@@ -34,7 +34,7 @@ export default function Home() {
   };
 
   const onRemove = (snippet) => { removeFromHistory(snippet); setHistory(getHistory()); };
-  const onClearHistory = () => { clearHistory(); setHistory([]); };
+  const onClearHistory = () => { clearHistory(); setHistory(getHistory()); };
 
   return (
     <section className="center">
@@ -65,10 +65,12 @@ export default function Home() {
                 <button className="history-item" onClick={() => setValue(h.snippet)} title={h.snippet}>
                   <span className="history-label">{label(h.snippet)}</span>
                   <span className="muted">
-                    {h.snippet === saved ? 'active · ' : ''}{new Date(h.savedAt).toLocaleString()}
+                    {h.snippet === saved ? 'active · ' : ''}{h.isDefault ? 'default' : new Date(h.savedAt).toLocaleString()}
                   </span>
                 </button>
-                <button className="link" onClick={() => onRemove(h.snippet)} aria-label="Remove">✕</button>
+                {!h.isDefault && (
+                  <button className="link" onClick={() => onRemove(h.snippet)} aria-label="Remove">✕</button>
+                )}
               </li>
             ))}
           </ul>
